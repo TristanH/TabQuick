@@ -1,18 +1,19 @@
 
 var tabSaver = {
-
-	//Does all of the required actions of the app
-  begin: function() {
-  
+	
+	groupName: "Cake",
+	
+   //Does all of the required actions of the app
+  begin: function() { 
   //Returns the ID of the bookmark folder where tabs are saved. Creates the folder if it doesn't exist.
 	 chrome.storage.sync.get('TabQuickID',
 		function(result){
-			if(result==undefined)
-				this.createMainFolder();
+			if(typeof result.TabQuickID === "undefined") //add in checking if the ID's bookmark exists here
+				tabSaver.createMainFolder();
 			else{
 				console.log("Got tabquickid, it is: " + result.TabQuickID); 
 				console.log(result);
-				this.saveTabs(result.TabQuickID);
+				tabSaver.saveTabs(result.TabQuickID);
 				}
 		});
   },
@@ -25,18 +26,34 @@ var tabSaver = {
 						 function(result){
 							chrome.storage.sync.set({'TabQuickID' : result.id});
 							console.log('Created tabquick folder and saved in storage, its ID is'+ result.id);
-							this.saveTabs(result.id);
+							tabSaver.saveTabs(result.id);
 						 });
   },
   
   saveTabs: function (folderID){
-
+	  console.log("Got to saveTabs, folderID is"+ folderID);
+	  chrome.bookmarks.create({
+						'parentId' : folderID,
+						'title' : this.groupName
+						},
+						function(result){ 
+							
+						});
+						
   }
   
-
 };
 
-// Run our kitten generation script as soon as the document's DOM is ready.
+
+document.onsubmit=function(){
+	tabSaver.groupName = document.forms["form"]["groupName"].value;
+	tabSaver.begin();
+	
+}
+
+/*
 document.addEventListener('DOMContentLoaded', function () {
-  tabSaver.begin();
+    tabSaver.groupName = "testwooh";
+	tabSaver.begin();
 });
+*/

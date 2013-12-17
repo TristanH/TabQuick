@@ -3,7 +3,7 @@
 
   "name": "TabQuick",
   "description": "Saves your current tabs into a bookmark folder whenever you want, as much as you want.",
-  "version": "0.1",
+  "version": "0.2",
 
   "permissions": [
 	"bookmarks",
