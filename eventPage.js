@@ -2,21 +2,35 @@ var tabSaver = {
 
     groupName: "",
 
-    //Does all of the required actions of the app
+    //Does all of the required actions of the extension
     begin: function () {
+		
+		if(tabSaver.groupName==="")
+			tabSaver.groupName=(new Date()).toUTCString().substring(0,16);
+	
         //Returns the ID of the bookmark folder where tabs are saved. Creates the folder if it doesn't exist.
         chrome.storage.sync.get('TabQuickID',
             function (result) {
                 if (typeof result.TabQuickID === "undefined") //add in checking if the ID's bookmark exists here
                     tabSaver.createMainFolder();
-
                 else {
                     console.log("Got tabquickid, it is: " + result.TabQuickID);
-                    tabSaver.saveTabs(result.TabQuickID);
+                    tabSaver.tryMainFolder(result.TabQuickID);
                 }
             });
     },
-
+	
+	tryMainFolder: function (folderID){
+		chrome.bookmarks.get(folderID.toString(), 
+		function(discovered){
+			if(typeof discovered === "undefined")
+				tabSaver.createMainFolder();
+			else
+				tabSaver.saveTabs(discovered[0].id);
+		});
+	
+	},
+	
     createMainFolder: function () {
         chrome.bookmarks.create({
                 'parentId': '1',
@@ -30,6 +44,7 @@ var tabSaver = {
                 tabSaver.saveTabs(result.id);
             });
     },
+	
 
     saveTabs: function (folderID) {
         console.log("Got to saveTabs, folderID is " + folderID);
@@ -46,9 +61,7 @@ var tabSaver = {
     },
 
     addTabsTo: function (allTabs, pID) {
-
         tabSaver.createRec(0, allTabs, pID);
-
     },
 
     createRec: function (index, allTabs, pID) {
